@@ -94,7 +94,7 @@ set_property(
 )
 
 # install the conversion tool, libyuv library and all the header files
-INSTALL ( PROGRAMS ${CMAKE_BINARY_DIR}/yuvconvert DESTINATION ${CMAKE_INSTALL_BINDIR} )
+INSTALL ( TARGETS yuvconvert DESTINATION ${CMAKE_INSTALL_BINDIR} )
 INSTALL ( TARGETS ${PROJECT_NAME} 
     EXPORT ${PROJECT_NAME}Config
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}

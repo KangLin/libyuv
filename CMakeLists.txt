@@ -14,6 +14,7 @@ if (UNIX OR MINGW)
        add_definitions("-fPIC")
     endif()
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+    add_compile_options("-std=c++0x")
 endif()
 
 SET ( ly_base_dir	${PROJECT_SOURCE_DIR} )

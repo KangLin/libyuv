@@ -105,6 +105,15 @@ void MergeUVPlane(const uint8_t* src_u,
                   int width,
                   int height);
 
+// Swap U and V channels in interleaved UV plane.
+LIBYUV_API
+void SwapUVPlane(const uint8_t* src_uv,
+                 int src_stride_uv,
+                 uint8_t* dst_vu,
+                 int dst_stride_vu,
+                 int width,
+                 int height);
+
 // Split interleaved RGB plane into separate R, G and B planes.
 LIBYUV_API
 void SplitRGBPlane(const uint8_t* src_rgb,
@@ -733,6 +742,19 @@ int ARGBBlur(const uint8_t* src_argb,
              int width,
              int height,
              int radius);
+
+// Gaussian 5x5 blur a float plane.
+// Coefficients of 1, 4, 6, 4, 1.
+// Each destination pixel is a blur of the 5x5
+// pixels from the source.
+// Source edges are clamped.
+LIBYUV_API
+int GaussPlane_F32(const float* src,
+                   int src_stride,
+                   float* dst,
+                   int dst_stride,
+                   int width,
+                   int height);
 
 // Multiply ARGB image by ARGB value.
 LIBYUV_API

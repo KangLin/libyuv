@@ -142,7 +142,7 @@ void RotatePlane180(const uint8_t* src,
 #if defined(HAS_MIRRORROW_NEON)
   if (TestCpuFlag(kCpuHasNEON)) {
     MirrorRow = MirrorRow_Any_NEON;
-    if (IS_ALIGNED(width, 16)) {
+    if (IS_ALIGNED(width, 32)) {
       MirrorRow = MirrorRow_NEON;
     }
   }
@@ -207,11 +207,11 @@ void RotatePlane180(const uint8_t* src,
 
   // Odd height will harmlessly mirror the middle row twice.
   for (y = 0; y < half_height; ++y) {
-    MirrorRow(src, row, width);  // Mirror first row into a buffer
-    src += src_stride;
+    CopyRow(src, row, width);        // Copy first row into buffer
     MirrorRow(src_bot, dst, width);  // Mirror last row into first row
+    MirrorRow(row, dst_bot, width);  // Mirror buffer into last row
+    src += src_stride;
     dst += dst_stride;
-    CopyRow(row, dst_bot, width);  // Copy first mirrored row into last
     src_bot -= src_stride;
     dst_bot -= dst_stride;
   }
@@ -474,6 +474,66 @@ int I420Rotate(const uint8_t* src_y,
                      halfheight);
       RotatePlane180(src_v, src_stride_v, dst_v, dst_stride_v, halfwidth,
                      halfheight);
+      return 0;
+    default:
+      break;
+  }
+  return -1;
+}
+
+LIBYUV_API
+int I444Rotate(const uint8_t* src_y,
+               int src_stride_y,
+               const uint8_t* src_u,
+               int src_stride_u,
+               const uint8_t* src_v,
+               int src_stride_v,
+               uint8_t* dst_y,
+               int dst_stride_y,
+               uint8_t* dst_u,
+               int dst_stride_u,
+               uint8_t* dst_v,
+               int dst_stride_v,
+               int width,
+               int height,
+               enum libyuv::RotationMode mode) {
+  if (!src_y || !src_u || !src_v || width <= 0 || height == 0 || !dst_y ||
+      !dst_u || !dst_v) {
+    return -1;
+  }
+
+  // Negative height means invert the image.
+  if (height < 0) {
+    height = -height;
+    src_y = src_y + (height - 1) * src_stride_y;
+    src_u = src_u + (height - 1) * src_stride_u;
+    src_v = src_v + (height - 1) * src_stride_v;
+    src_stride_y = -src_stride_y;
+    src_stride_u = -src_stride_u;
+    src_stride_v = -src_stride_v;
+  }
+
+  switch (mode) {
+    case libyuv::kRotate0:
+      // copy frame
+      CopyPlane(src_y, src_stride_y, dst_y, dst_stride_y, width, height);
+      CopyPlane(src_u, src_stride_u, dst_u, dst_stride_u, width, height);
+      CopyPlane(src_v, src_stride_v, dst_v, dst_stride_v, width, height);
+      return 0;
+    case libyuv::kRotate90:
+      RotatePlane90(src_y, src_stride_y, dst_y, dst_stride_y, width, height);
+      RotatePlane90(src_u, src_stride_u, dst_u, dst_stride_u, width, height);
+      RotatePlane90(src_v, src_stride_v, dst_v, dst_stride_v, width, height);
+      return 0;
+    case libyuv::kRotate270:
+      RotatePlane270(src_y, src_stride_y, dst_y, dst_stride_y, width, height);
+      RotatePlane270(src_u, src_stride_u, dst_u, dst_stride_u, width, height);
+      RotatePlane270(src_v, src_stride_v, dst_v, dst_stride_v, width, height);
+      return 0;
+    case libyuv::kRotate180:
+      RotatePlane180(src_y, src_stride_y, dst_y, dst_stride_y, width, height);
+      RotatePlane180(src_u, src_stride_u, dst_u, dst_stride_u, width, height);
+      RotatePlane180(src_v, src_stride_v, dst_v, dst_stride_v, width, height);
       return 0;
     default:
       break;

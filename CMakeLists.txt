@@ -6,7 +6,7 @@ PROJECT ( YUV C CXX )	# "C" is required even for C++ projects
 CMAKE_MINIMUM_REQUIRED( VERSION 2.8 )
 OPTION( TEST "Built unit tests" OFF )
 
-if (BUILD_SHARED_LIBS)
+if (UNIX OR MINGW)
     if (CMAKE_COMPILER_IS_GNUCXX AND NOT MINGW)
        # Just setting CMAKE_POSITION_INDEPENDENT_CODE should be enough to set
        # -fPIC for GCC but sometimes it still doesn't get set, so make sure it
@@ -14,6 +14,7 @@ if (BUILD_SHARED_LIBS)
        add_definitions("-fPIC")
     endif()
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+    add_compile_options("-std=c++0x")
 endif()
 
 SET ( ly_base_dir	${PROJECT_SOURCE_DIR} )
